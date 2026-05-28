@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌼 食欲レーダー</title>
+<style>
+:root{
+  --bg1:#fff7c7;
+  --bg2:#fffdf2;
+  --card:#fffef8;
+  --main:#ffd54f;
+  --main2:#ffb300;
+  --text:#4b3900;
+  --muted:#8a741f;
+  --line:#f1df91;
+  --soft:#fff5c4;
+  --danger:#ff8a80;
+  --ok:#aed581;
+  --blue:#90caf9;
+  --shadow:0 14px 35px rgba(93,70,0,.13);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
+}
+.app{max-width:1050px;margin:0 auto}
+.hero{
+  background:linear-gradient(135deg,#ffe16a,#fff6c9);
+  border:1px solid #ffe083;
+  border-radius:28px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  margin-bottom:14px;
+}
+h1{margin:0;font-size:26px}
+.sub{margin-top:6px;color:var(--muted);font-weight:700}
+.forecast{
+  margin-top:14px;
+  background:rgba(255,255,255,.72);
+  border-radius:22px;
+  padding:14px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:center;
+}
+.cat{
+  width:64px;height:64px;border-radius:50%;
+  background:#fffdf3;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+  box-shadow:inset 0 0 0 4px #fff3b0;
+}
+.forecastText strong{display:block;font-size:20px}
+.forecastText span{font-size:14px;color:#6d5500}
+.layout{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:14px;
+  align-items:start;
+}
+.card{
+  background:rgba(255,254,248,.95);
+  border:1px solid var(--line);
+  border-radius:26px;
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+.monthbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+button{
+  border:none;
+  background:var(--main);
+  color:var(--text);
+  font-weight:800;
+  border-radius:999px;
+  padding:11px 14px;
+  min-height:42px;
+  cursor:pointer;
+  box-shadow:0 3px 0 rgba(141,102,0,.22);
+}
+button:active{transform:translateY(2px);box-shadow:none}
+button.secondary{background:#fff6d5;border:1px solid var(--line);box-shadow:none}
+button.danger{background:#ffb3ad}
+.monthTitle{font-size:20px;font-weight:900}
+.summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:10px;
+}
+.sum{
+  background:#fff7d7;
+  border:1px solid var(--line);
+  border-radius:18px;
+  text-align:center;
+  padding:10px 6px;
+}
+.sum strong{font-size:22px;display:block}
+.sum span{font-size:11px;color:var(--muted);font-weight:800}
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+.dow{
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  padding:4px 0;
+}
+.day{
+  min-height:82px;
+  background:#fffaf0;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:7px;
+  cursor:pointer;
+  overflow:hidden;
+}
+.day.empty{background:transparent;border:none;cursor:default}
+.day.today{outline:3px solid rgba(255,179,0,.35)}
+.day.selected{border:2px solid var(--main2)}
+.num{
+  display:flex;
+  justify-content:space-between;
+  font-weight:900;
+  font-size:13px;
+}
+.emoji{font-size:19px}
+.mini{
+  margin-top:5px;
+  font-size:11px;
+  line-height:1.35;
+  color:#6d5500;
+}
+.panelHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+.panelHead h2{margin:0;font-size:20px}
+.section{
+  border-top:1px dashed var(--line);
+  padding-top:12px;
+  margin-top:12px;
+}
+.label{
+  font-weight:900;
+  display:block;
+  margin-bottom:8px;
+}
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.pill{
+  background:#fff7da;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:10px 12px;
+  min-height:42px;
+  font-weight:800;
+  cursor:pointer;
+  user-select:none;
+}
+.pill.active{
+  background:var(--main);
+  border-color:var(--main2);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);
+}
+textarea{
+  width:100%;
+  min-height:86px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:12px;
+  font-size:16px;
+  background:#fffdf4;
+  color:var(--text);
+}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.insight{
+  margin-top:10px;
+  background:#fff4c4;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:12px;
+  line-height:1.55;
+  font-weight:700;
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  background:#4b3900;
+  color:#fff9df;
+  padding:10px 16px;
+  border-radius:999px;
+  opacity:0;
+  transition:.18s;
+  font-weight:900;
+  pointer-events:none;
+}
+.toast.show{opacity:1}
+@media(max-width:850px){
+  body{padding:10px}
+  .layout{grid-template-columns:1fr}
+  .day{min-height:68px;padding:5px;border-radius:13px}
+  .mini{font-size:10px}
+  h1{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <h1>🌼 食欲レーダー</h1>
+    <div class="sub">気分・通勤・食欲をタップで記録。あとから「暴走しやすい日」を見つけるにゃ。</div>
+    <div class="forecast">
+      <div class="cat">🐱</div>
+      <div class="forecastText">
+        <strong id="forecastTitle">今日は平和そうにゃ✨</strong>
+        <span id="forecastBody">今日も生き延びただけで100点にゃ。</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <main class="card">
+      <div class="monthbar">
+        <button class="secondary" id="prev">←</button>
+        <div class="monthTitle" id="monthTitle"></div>
+        <button class="secondary" id="next">→</button>
+      </div>
+
+      <div class="summary">
+        <div class="sum"><strong id="count">0</strong><span>記録日数</span></div>
+        <div class="sum"><strong id="riskDays">0</strong><span>危険日</span></div>
+        <div class="sum"><strong id="bingeDays">0</strong><span>暴走日</span></div>
+      </div>
+
+      <div class="calendar" id="calendar"></div>
+      <div class="insight" id="insight">記録すると、ここに月の傾向が出るにゃ。</div>
+    </main>
+
+    <aside class="card">
+      <div class="panelHead">
+        <h2 id="dateTitle"></h2>
+        <button class="secondary" id="today">今日</button>
+      </div>
+
+      <div class="section">
+        <span class="label">今の気分</span>
+        <div class="row" data-field="mood">
+          <span class="pill" data-value="5">🥰 ご機嫌</span>
+          <span class="pill" data-value="4">😊 まあ良い</span>
+          <span class="pill" data-value="3">😐 普通</span>
+          <span class="pill" data-value="2">🥺 しんどい</span>
+          <span class="pill" data-value="1">😭 泣きそう</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="label">食欲</span>
+        <div class="row" data-field="appetite">
+          <span class="pill" data-value="1">🥗 平和</span>
+          <span class="pill" data-value="2">🍙 ふつう</span>
+          <span class="pill" data-value="3">🍜 強め</span>
+          <span class="pill" data-value="4">🍫 危険</span>
+          <span class="pill" data-value="5">🍰🔥 暴走</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="label">疲労</span>
+        <div class="row" data-field="fatigue">
+          <span class="pill" data-value="1">🌱 軽い</span>
+          <span class="pill" data-value="2">🙂 少し</span>
+          <span class="pill" data-value="3">😮‍💨 普通</span>
+          <span class="pill" data-value="4">🪨 重い</span>
+          <span class="pill" data-value="5">🫠 限界</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="label">通勤</span>
+        <div class="row" data-field="commute">
+          <span class="pill" data-value="sit">🚃 座れた</span>
+          <span class="pill" data-value="stand">🚃💦 立ちっぱなし</span>
+          <span class="pill" data-value="holiday">🏠 休み</span>
+          <span class="pill" data-value="remote">💻 在宅</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="label">今日のひとこと</span>
+        <textarea id="memo" placeholder="例：金曜で疲労MAX。帰りにコンビニ寄りたくなった。"></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="save">🌼 保存する</button>
+        <button class="secondary" id="copy">記録を書き出し</button>
+        <button class="danger" id="delete">削除</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast">保存したにゃ</div>
+
+<script>
+const KEY="shokuyoku_radar_records_v2";
+let records=JSON.parse(localStorage.getItem(KEY)||"{}");
+let view=new Date();
+let selected=new Date();
+
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const keyOf=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const label=d=>`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+
+const moodEmoji={5:"🥰",4:"😊",3:"😐",2:"🥺",1:"😭"};
+const appetiteEmoji={1:"🥗",2:"🍙",3:"🍜",4:"🍫",5:"🍰🔥"};
+const fatigueEmoji={1:"🌱",2:"🙂",3:"😮‍💨",4:"🪨",5:"🫠"};
+const commuteEmoji={sit:"🚃",stand:"🚃💦",holiday:"🏠",remote:"💻"};
+
+function toast(msg){
+  $("toast").textContent=msg;
+  $("toast").classList.add("show");
+  setTimeout(()=>$("toast").classList.remove("show"),1300);
+}
+function saveAll(){localStorage.setItem(KEY,JSON.stringify(records));}
+function current(){
+  const data={};
+  document.querySelectorAll(".row").forEach(row=>{
+    const active=row.querySelector(".pill.active");
+    if(active) data[row.dataset.field]=active.dataset.value;
+  });
+  data.memo=$("memo").value.trim();
+  data.updatedAt=new Date().toISOString();
+  return data;
+}
+function riskScore(data){
+  let s=0;
+  if(+data.appetite>=4) s+=3;
+  if(+data.fatigue>=4) s+=2;
+  if(+data.mood<=2) s+=2;
+  if(data.commute==="stand") s+=1;
+  const day=new Date(keyOf(selected)+"T00:00:00").getDay();
+  if(day===5) s+=1;
+  return s;
+}
+function updateForecast(){
+  const data=current();
+  const s=riskScore(data);
+  if(s>=6){
+    $("forecastTitle").textContent="🍰🔥 食欲暴走注意報にゃ";
+    $("forecastBody").textContent="今日はコンビニがラスボス。先に飲み物か味噌汁でワンクッションにゃ。";
+  }else if(s>=3){
+    $("forecastTitle").textContent="🌼 ちょっと危険にゃ";
+    $("forecastBody").textContent="疲れと食欲が手を組みかけてるにゃ。買う前に一回だけ深呼吸。";
+  }else{
+    $("forecastTitle").textContent="✨ 今日は平和そうにゃ";
+    $("forecastBody").textContent="今日も生き延びただけで100点にゃ。";
+  }
+}
+function clearInputs(){
+  document.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
+  $("memo").value="";
+}
+function setActive(field,value){
+  document.querySelectorAll(`.row[data-field="${field}"] .pill`).forEach(p=>{
+    p.classList.toggle("active",p.dataset.value===String(value));
+  });
+}
+function load(){
+  clearInputs();
+  const rec=records[keyOf(selected)]||{};
+  ["mood","appetite","fatigue","commute"].forEach(f=>setActive(f,rec[f]));
+  $("memo").value=rec.memo||"";
+  $("dateTitle").textContent=label(selected);
+  updateForecast();
+}
+function render(){
+  const y=view.getFullYear(), m=view.getMonth();
+  $("monthTitle").textContent=`${y}年 ${m+1}月`;
+  const cal=$("calendar");
+  cal.innerHTML="";
+  ["日","月","火","水","木","金","土"].forEach(d=>{
+    const el=document.createElement("div");
+    el.className="dow"; el.textContent=d; cal.appendChild(el);
+  });
+  const first=new Date(y,m,1);
+  const last=new Date(y,m+1,0);
+  for(let i=0;i<first.getDay();i++){
+    const e=document.createElement("div"); e.className="day empty"; cal.appendChild(e);
+  }
+  const todayKey=keyOf(new Date()), selectedKey=keyOf(selected);
+  for(let d=1;d<=last.getDate();d++){
+    const date=new Date(y,m,d), k=keyOf(date), rec=records[k];
+    const el=document.createElement("div");
+    el.className="day";
+    if(k===todayKey) el.classList.add("today");
+    if(k===selectedKey) el.classList.add("selected");
+    const mainEmoji=rec ? (+rec.appetite>=5 ? "🍰🔥" : +rec.appetite>=4 ? "🍫" : +rec.mood>=4 ? "✨" : +rec.mood<=2 ? "😭" : "🌼") : "";
+    el.innerHTML=`
+      <div class="num"><span>${d}</span><span class="emoji">${mainEmoji}</span></div>
+      <div class="mini">
+        ${rec ? `<div>${moodEmoji[rec.mood]||""} ${appetiteEmoji[rec.appetite]||""} ${fatigueEmoji[rec.fatigue]||""}</div>` : ""}
+        ${rec ? `<div>${commuteEmoji[rec.commute]||""} ${escapeHtml(rec.memo||"")}</div>` : ""}
+      </div>`;
+    el.onclick=()=>{selected=date; load(); render();};
+    cal.appendChild(el);
+  }
+  summary();
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[s]));
+}
+function summary(){
+  const prefix=`${view.getFullYear()}-${pad(view.getMonth()+1)}-`;
+  const arr=Object.entries(records).filter(([k])=>k.startsWith(prefix)).map(([k,v])=>({k,...v}));
+  $("count").textContent=arr.length;
+  $("riskDays").textContent=arr.filter(r=>+r.appetite>=4 || +r.fatigue>=4 || +r.mood<=2).length;
+  $("bingeDays").textContent=arr.filter(r=>+r.appetite>=5).length;
+
+  if(arr.length<2){
+    $("insight").textContent="記録が2日以上になると、月の傾向が出るにゃ。";
+    return;
+  }
+  const standRisk=arr.filter(r=>r.commute==="stand" && +r.appetite>=4).length;
+  const fridayRisk=arr.filter(r=>new Date(r.k+"T00:00:00").getDay()===5 && +r.appetite>=4).length;
+  const tiredRisk=arr.filter(r=>+r.fatigue>=4 && +r.appetite>=4).length;
+  let text=`今月は${arr.length}日記録。暴走日は${arr.filter(r=>+r.appetite>=5).length}日。`;
+  if(tiredRisk) text+=` 疲労重め×食欲危険が${tiredRisk}日。これは意思じゃなくて疲労の仕業にゃ。`;
+  if(standRisk) text+=` 立ちっぱなし通勤×食欲危険が${standRisk}日。10号車データと合わせたいにゃ。`;
+  if(fridayRisk) text+=` 金曜の食欲危険が${fridayRisk}日。金曜ラスボス説、濃厚。`;
+  $("insight").textContent=text;
+}
+document.querySelectorAll(".row").forEach(row=>{
+  row.onclick=e=>{
+    const p=e.target.closest(".pill");
+    if(!p) return;
+    row.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
+    p.classList.add("active");
+    updateForecast();
+  };
+});
+$("save").onclick=()=>{
+  records[keyOf(selected)]=current();
+  saveAll(); render(); toast("保存したにゃ🌼");
+};
+$("delete").onclick=()=>{
+  const k=keyOf(selected);
+  if(!records[k]) return toast("記録ないにゃ");
+  if(confirm("この日の記録を消す？")){
+    delete records[k]; saveAll(); load(); render(); toast("消したにゃ");
+  }
+};
+$("prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render();};
+$("next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render();};
+$("today").onclick=()=>{selected=new Date();view=new Date();load();render();};
+$("copy").onclick=async()=>{
+  const text=JSON.stringify(records,null,2);
+  try{await navigator.clipboard.writeText(text);toast("記録をコピーしたにゃ");}
+  catch{prompt("コピーして保存してにゃ",text);}
+};
+load();render();
+</script>
+</body>
+</html>
